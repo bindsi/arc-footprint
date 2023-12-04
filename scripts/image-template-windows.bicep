@@ -63,7 +63,7 @@ resource azureImageBuilderTemplate 'Microsoft.VirtualMachineImages/imageTemplate
         type: 'WindowsRestart'
         name: 'StartAKSEdgeInstall-EnableHyperV'
         restartTimeout: '15m'
-        restartCommand: 'powershell.exe -ExecutionPolicy Bypass-File c:\\scripts\\AksEdgeQuickStart.ps1'
+        restartCommand: 'powershell.exe -ExecutionPolicy Bypass -File c:\\scripts\\AksEdgeQuickStart.ps1'
       }
       {
         type: 'PowerShell'
