@@ -55,8 +55,8 @@ resource azureImageBuilderTemplate 'Microsoft.VirtualMachineImages/imageTemplate
         runElevated: true
         name: 'Prep script and PowerShell'
         inline: [
-          'Unblock-File .\\AksEdgeQuickStart.ps1'
-          'Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force'
+          'Unblock-File c:\\scripts\\AksEdgeQuickStart.ps1'
+          'Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope LocalMachine -Force'
         ]
       }
       {
