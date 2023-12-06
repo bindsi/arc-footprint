@@ -29,7 +29,7 @@ on:
       resourceGroupName:
         description: 'Azure Resource Group'
         type: string
-        default: rg-arc-footprint
+        default: rg-arc-footprint-images
         required: true
       createVm:
         description: 'Create VM from image'
@@ -113,9 +113,11 @@ jobs:
     needs: Build-VHDX
     with:
       location: ${{ inputs.location }}
-      resourceGroupName: ${{ inputs.resourceGroupName }}
+      galleryResourceGroupName: ${{ inputs.resourceGroupName }}
       computeGalleryName: ${{ inputs.computeGalleryName }}
       imageDefinitionName: ${{ needs.Build-VHDX.outputs.configurationName }}
+      imageVersion: ${{ needs.Build-VHDX.outputs.imageVersion }}
+      resourceGroupName: rg-arc-footprint
       vmName: ${{ needs.Build-VHDX.outputs.configurationName }}
       vmSize: ${{ needs.Build-VHDX.outputs.vmSize }}
     secrets: inherit
