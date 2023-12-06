@@ -50,9 +50,13 @@ on:
         type: string
       imageDefinitionName:
         description: 'Image Definition Name'
-        default: 'id-arc-footprint'
+        default: 'WinServer'
         required: true
-        type: string
+        type: choice
+        options:
+        - WinServer
+        - WinIoT
+        - Linux
       imageVersion:
         description: 'Image Version'
         default: '1.0.0'
@@ -89,7 +93,7 @@ jobs:
       adminPassword: ${{ secrets.VMADMINPASSWORD }}
       clusterName: "aksEEAIO-${{github.run_id}}"
       vmIdentityName: ${{ inputs.vmName }}-id
-      grafanaDashboardName: footprint-dashbaord
+      grafanaDashboardName: footprint-dashboard
       monitorName: footprint
     steps:
     - uses: actions/checkout@v4
@@ -102,7 +106,8 @@ jobs:
     - name: Validate parameters
       run: |
         echo "Checking if VM already exists..."
-        if [ -n "$(az vm show --name $vmName -g $resourceGroup --query id -o tsv 2>/dev/null)" ]; then
+        vm=$(az vm list --query "[?name=='$vmName'&&resourceGroup=='$resourceGroup'].id" -o tsv)
+        if [ -n "$vm" ]; then
           echo "Error: VM $vmName already exists. Please delete existing VM or re-run with different name."
           exit 1
         fi
@@ -116,7 +121,12 @@ jobs:
       run: |
         subscriptionId=$(az account show --query id -o tsv)
 
-        imgDef="/subscriptions/$subscriptionId/resourceGroups/$resourceGroup/providers/Microsoft.Compute/galleries/$galleryName/images/$imageDefinitionName"
+        if [ !$(az group exists -n $resourceGroup) ]; then
+          echo "Creating RG $resourceGroup..."
+          az group create -n $resourceGroup -l $location
+        fi
+
+        imgDef="/subscriptions/$subscriptionId/resourceGroups/$galleryResourceGroup/providers/Microsoft.Compute/galleries/$galleryName/images/$imageDefinitionName/versions/$imageVersion"
 
         echo "Checking identity exists?..."
         identity=$(az identity list --query "[?name=='$vmIdentityName'&&resourceGroup=='$resourceGroup'].id" -o tsv)
@@ -133,7 +143,7 @@ jobs:
 
         echo "Creating role assignment for $vmIdentityName (principalId: $principalId)..."
         az role assignment create --assignee-object-id $principalId --assignee-principal-type ServicePrincipal --role "Contributor" --scope /subscriptions/$subscriptionId
-      
+
         echo "Creating VM..."
         az vm create \
           --resource-group $resourceGroup \
@@ -191,21 +201,24 @@ jobs:
         az provider register --namespace Microsoft.AlertsManagement --wait
         az extension add --name amg
 
-        workspaceId="$(az resource list --resource-type Microsoft.monitor/accounts --query "[?name=='$monitorName'&&resourceGroup==$resourceGroup].id" -o tsv)"
+        workspaceId=$(az resource list --resource-type Microsoft.monitor/accounts --query "[?name=='$monitorName'&&resourceGroup=='$resourceGroup'].id" -o tsv)
 
-        if [ -z $workspaceId ]; then;
+        if [ -z $workspaceId ]; then
           echo "Creating new Azure Monitor workspace."
           workspaceId="$(az resource create -g $resourceGroup --namespace microsoft.monitor --resource-type accounts --name $monitorName --properties "{}" --query id -o tsv)"
         else
           echo "Azure Monitor workspace already exists."
         fi
 
-        if [ -z $(az grafana list --query "[?name=='$grafanaDashboardName'&&resourceGroup==$resourceGroup].name" -o tsv)]; then;
+        grafanaIdentity=$(az grafana list --query "[?name=='$grafanaDashboardName'&&resourceGroup=='$resourceGroup'].identity.principalId" -o tsv)
+        if [ -z $(az grafana list --query "[?name=='$grafanaDashboardName'&&resourceGroup=='$resourceGroup'].name" -o tsv) ]; then
           echo "Create Grafana resource in azure."
-          az grafana create -n $grafanaDashboardName -g $resourceGroup
+          grafanaIdentity$(az grafana create -n $grafanaDashboardName -g $resourceGroup --query "identity.principalId" -o tsv)
         else
           echo "Grafana resource ($grafanaDashboardName) already exists."
         fi
+
+        az role assignment create --assignee $grafanaIdentity --role "Monitoring Data Reader" --scope /subscriptions/$subscriptionId
 
         echo "Creating k8s-extension azuremonitor-metrics..."
         az k8s-extension create --name azuremonitor-metrics \
@@ -217,7 +230,7 @@ jobs:
         
         echo "Adding prometheus data source to Grafana..."
         promUrl="$(az resource show --resource-type Microsoft.monitor/accounts --name $monitorName -g $resourceGroup --query properties.metrics.prometheusQueryEndpoint -o tsv)"
-        az grafana data-source create -n $grafanaDashboardName --definition '{
+        az grafana data-source create -n $grafanaDashboardName -g $resourceGroup --definition '{
           "name": "Azure Managed Prometheus-1",
           "type": "prometheus",
           "access": "proxy",
@@ -227,7 +240,7 @@ jobs:
             "azureCredentials": { "authType": "msi" }
           }
         }'
-        az grafana folder create -n $grafanaDashboardName --title "Footprint Dashboards"
+        az grafana folder create -n $grafanaDashboardName -g $resourceGroup --title "Footprint Dashboards"
         az grafana dashboard create \
           -n $grafanaDashboardName \
           -g $resourceGroup \

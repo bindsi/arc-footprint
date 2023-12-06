@@ -498,7 +498,7 @@
       "schemaVersion": 38,
       "style": "dark",
       "tags": [
-        "kubernetes-mixin"
+        "footprint"
       ],
       "templating": {
         "list": [
