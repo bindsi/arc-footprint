@@ -93,7 +93,7 @@ jobs:
       adminPassword: ${{ secrets.VMADMINPASSWORD }}
       clusterName: "aksEEAIO-${{github.run_id}}"
       vmIdentityName: ${{ inputs.vmName }}-id
-      grafanaDashboardName: footprint-dashboard
+      grafanaDashboardName: footprint-${{github.run_id}}
       monitorName: footprint
     steps:
     - uses: actions/checkout@v4
@@ -190,8 +190,6 @@ jobs:
                 az extension add --name connectedk8s; \\
                 az extension add --name azure-iot-ops; \\
                 az connectedk8s connect -n $clusterName -l $location -g $resourceGroup --kube-config C:\\Scripts\\config --subscription $subscriptionId; \\
-                az connectedk8s enable-features -n $clusterName -g $resourceGroup --kube-config C:\\Scripts\\config --custom-locations-oid \"\"${{ secrets.CUSTOM_LOCATIONS_OBJECT_ID }}\"\" --features cluster-connect custom-locations; \\
-                az iot ops init --context default --cluster clusterName -g $resourceGroup --kv-id \"\"$(az keyvault create -n kv-aksEEAIO-${{github.run_id}} -g $resourceGroup -o tsv --query id)\"\" --sp-app-id \"\"${{ secrets.AZURE_CLIENT_ID }}\"\" --sp-object-id \"\"${{ secrets.AZURE_OBJECT_ID }}\"\" --sp-secret \"\"${{ secrets.AZURE_CLIENT_SECRET }}\"\"; \\
             \"}"
         fi
     - name: Create monitoring resources
@@ -213,11 +211,12 @@ jobs:
         grafanaIdentity=$(az grafana list --query "[?name=='$grafanaDashboardName'&&resourceGroup=='$resourceGroup'].identity.principalId" -o tsv)
         if [ -z $(az grafana list --query "[?name=='$grafanaDashboardName'&&resourceGroup=='$resourceGroup'].name" -o tsv) ]; then
           echo "Create Grafana resource in azure."
-          grafanaIdentity$(az grafana create -n $grafanaDashboardName -g $resourceGroup --query "identity.principalId" -o tsv)
+          grafanaIdentity=$(az grafana create -n $grafanaDashboardName -g $resourceGroup --query "identity.principalId" -o tsv)
         else
           echo "Grafana resource ($grafanaDashboardName) already exists."
         fi
 
+        subscriptionId=$(az account show --query id -o tsv)
         az role assignment create --assignee $grafanaIdentity --role "Monitoring Data Reader" --scope /subscriptions/$subscriptionId
 
         echo "Creating k8s-extension azuremonitor-metrics..."
@@ -247,3 +246,4 @@ jobs:
           --title "Memory Footprint / Namespace (Workloads)" \
           --folder "Footprint Dashboards" \
           --definition $GITHUB_WORKSPACE/grafana/mem_by_ns.json
+          
