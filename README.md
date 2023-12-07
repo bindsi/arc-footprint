@@ -28,3 +28,13 @@ It installs the corresponding version of [AKS-EE](https://learn.microsoft.com/en
 ### VM Creation
 
 On top of the created vhdx images you can create a VM with the **Create VM** pipeline that references the image in the image gallery.
+
+#### Grafana Dashboard 
+
+After running the Build-VM pipeline, you should be equipped with a Grafana dashboard. In order to access the dashboard, users must have at least "Grafana Reader" role. 
+
+```sh
+# Assign the signed-in user appropriate Grafana role with az cli
+id=$(az ad signed-in-user show --query id -o tsv)
+az role assignment create --assignee $id --role "Grafana Admin"
+```
