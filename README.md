@@ -6,6 +6,8 @@ This infrastructure enables you to install instrumentation tools and collect mem
 
 ## Pre-requisites
 
+### Azure Subscription Access
+
 ```sh
 # Create an sp for gh actions. Create a secret named AZURE_CREDENTIALS from the output of the following command
 # Owner role required to create identities
@@ -15,6 +17,10 @@ az ad sp create-for-rbac --name "myApp" --role owner \
 # Create role assignment for the SP to create Grafana dashboards
 az role assignment create --assignee <client-id> --role "Grafana Admin" --scope /subscriptions/<subscription-id>
 ```
+
+### Azure VM Sizes
+
+Since nested virtualization is required to install AKS-EE on Windows, you need to select a VM size that supports this feature, such as Dv5 or Dsv5 series. For more information, you can refer to [hardware requirements](https://learn.microsoft.com/en-us/azure/aks/hybrid/aks-edge-system-requirements#hardware-requirements).
 
 ### GitHub Secrets
 
