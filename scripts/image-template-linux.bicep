@@ -34,7 +34,6 @@ resource azureImageBuilderTemplate 'Microsoft.VirtualMachineImages/imageTemplate
         inline: [
           'curl -sfL https://get.k3s.io | sh -'
           'mkdir ~/.kube'
-          'cp ~/.kube/config ~/.kube/config.back'
           'sudo KUBECONFIG=~/.kube/config:/etc/rancher/k3s/k3s.yaml kubectl config view --flatten > ~/.kube/merged'
           'mv ~/.kube/merged ~/.kube/config'
           'chmod  0600 ~/.kube/config'
