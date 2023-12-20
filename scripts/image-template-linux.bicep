@@ -33,38 +33,42 @@ resource azureImageBuilderTemplate 'Microsoft.VirtualMachineImages/imageTemplate
         name: 'Install K3s'
         inline: [
           'curl -sfL https://get.k3s.io | sh -'
+          'echo "xxxxxxxxx"'
           'mkdir ~/.kube'
           'sudo KUBECONFIG=~/.kube/config:/etc/rancher/k3s/k3s.yaml kubectl config view --flatten > ~/.kube/merged'
+          'echo "yyyyyyyyy"'
           'mv ~/.kube/merged ~/.kube/config'
           'chmod  0600 ~/.kube/config'
           'export KUBECONFIG=~/.kube/config'
           'kubectl config use-context default'
+          'echo "zzzzzzzzzz"'
+          'kubectl get nodes'
         ]
       }
-      {
-        type: 'Shell'
-        name: 'Install nfs-common'
-        inline: [
-          'sudo apt install nfs-common'
-        ]
-      }
-      {
-        type: 'Shell'
-        name: 'Increase the user watch/instance limits'
-        inline: [
-          'echo fs.inotify.max_user_instances=8192 | sudo tee -a /etc/sysctl.conf'
-          'echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf'
-          'sudo sysctl -p'
-        ]
-      }
-      {
-        type: 'Shell'
-        name: 'Increase the user watch/instance limits'
-        inline: [
-          'echo fs.file-max = 100000 | sudo tee -a /etc/sysctl.conf'
-          'sudo sysctl -p'
-        ]
-      }
+      // {
+      //   type: 'Shell'
+      //   name: 'Install nfs-common'
+      //   inline: [
+      //     'sudo apt install nfs-common'
+      //   ]
+      // }
+      // {
+      //   type: 'Shell'
+      //   name: 'Increase the user watch/instance limits'
+      //   inline: [
+      //     'echo fs.inotify.max_user_instances=8192 | sudo tee -a /etc/sysctl.conf'
+      //     'echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf'
+      //     'sudo sysctl -p'
+      //   ]
+      // }
+      // {
+      //   type: 'Shell'
+      //   name: 'Increase the user watch/instance limits'
+      //   inline: [
+      //     'echo fs.file-max = 100000 | sudo tee -a /etc/sysctl.conf'
+      //     'sudo sysctl -p'
+      //   ]
+      // }
     ]
     distribute: [
       {
