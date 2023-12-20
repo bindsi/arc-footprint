@@ -197,7 +197,6 @@ jobs:
                 \$env:KUBECONFIG='C:\\Scripts\\config'; \
                 az iot ops init --no-progress --cluster $clusterName -g $resourceGroup --kv-id \"\"$kvId\"\" --sp-app-id \"\"${{ secrets.AZURE_SP_CLIENT_ID }}\"\" --sp-object-id \"\"${{ secrets.AZURE_SP_OBJECT_ID }}\"\" --sp-secret \"\"${{ secrets.AZURE_SP_CLIENT_SECRET }}\"\"; \
             \"}"
-        fi
         else
           az vm extension set \
             --resource-group $resourceGroup \
