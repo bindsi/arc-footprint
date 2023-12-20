@@ -45,30 +45,25 @@ resource azureImageBuilderTemplate 'Microsoft.VirtualMachineImages/imageTemplate
           'kubectl get nodes'
         ]
       }
-      // {
-      //   type: 'Shell'
-      //   name: 'Install nfs-common'
-      //   inline: [
-      //     'sudo apt install nfs-common'
-      //   ]
-      // }
-      // {
-      //   type: 'Shell'
-      //   name: 'Increase the user watch/instance limits'
-      //   inline: [
-      //     'echo fs.inotify.max_user_instances=8192 | sudo tee -a /etc/sysctl.conf'
-      //     'echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf'
-      //     'sudo sysctl -p'
-      //   ]
-      // }
-      // {
-      //   type: 'Shell'
-      //   name: 'Increase the user watch/instance limits'
-      //   inline: [
-      //     'echo fs.file-max = 100000 | sudo tee -a /etc/sysctl.conf'
-      //     'sudo sysctl -p'
-      //   ]
-      // }
+      {
+        type: 'Shell'
+        name: 'Install nfs-common'
+        inline: [
+          'sudo apt-get update'
+          'sudo apt-get install -y nfs-common'
+        ]
+      }
+      {
+        type: 'Shell'
+        name: 'Increase the user watch/instance and file descriptor limits'
+        inline: [
+          'echo fs.inotify.max_user_instances=8192 | sudo tee -a /etc/sysctl.conf'
+          'echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf'
+          'echo fs.file-max = 100000 | sudo tee -a /etc/sysctl.conf'
+          'sudo sysctl -p'
+        ]
+      }
+
     ]
     distribute: [
       {
