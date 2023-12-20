@@ -60,7 +60,20 @@ resource azureImageBuilderTemplate 'Microsoft.VirtualMachineImages/imageTemplate
           'sudo sysctl -p'
         ]
       }
-
+      {
+        type: 'Shell'
+        name: 'Install Azure CLI'
+        inline: [
+          'curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash'
+        ]
+      }
+      {
+        type: 'Shell'
+        name: 'Install Azure CLI'
+        inline: [
+          'kubectl get pods -A -v6'
+        ]
+      }
     ]
     distribute: [
       {
