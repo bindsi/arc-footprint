@@ -102,11 +102,11 @@ jobs:
     - name: Validate parameters
       run: |
         echo "Checking if VM already exists..."
-        vm=$(az vm show -n $vmName -g $resourceGroup --query id -o tsv 2>/dev/null)
-        if [ -n "$vm" ]; then
-          echo "Error: VM $vmName already exists. Please delete existing VM or re-run with different name."
+        if [ -n "$(az vm show -n $vmName -g $resourceGroup --query id -o tsv 2>/dev/null" ]; then
+          echo "Error: VM $vmName in RG $resourceGroup already exists. Please delete existing VM or re-run with different name."
           exit 1
         fi
+        echo "VM parameters are valid..."
     - name: Wait for Image to be created
       run: |
         echo "Wait for image to be created..."
