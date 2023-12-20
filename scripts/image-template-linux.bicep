@@ -33,15 +33,12 @@ resource azureImageBuilderTemplate 'Microsoft.VirtualMachineImages/imageTemplate
         name: 'Install K3s'
         inline: [
           'curl -sfL https://get.k3s.io | sh -'
-          'echo "xxxxxxxxx"'
           'mkdir ~/.kube'
           'sudo KUBECONFIG=~/.kube/config:/etc/rancher/k3s/k3s.yaml kubectl config view --flatten > ~/.kube/merged'
-          'echo "yyyyyyyyy"'
           'mv ~/.kube/merged ~/.kube/config'
           'chmod  0600 ~/.kube/config'
           'export KUBECONFIG=~/.kube/config'
           'kubectl config use-context default'
-          'echo "zzzzzzzzzz"'
           'kubectl get nodes'
         ]
       }
