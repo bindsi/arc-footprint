@@ -207,9 +207,9 @@ jobs:
             --settings "{\"commandToExecute\": \" \
                 curl -sfL https://get.k3s.io | sh - && \
                 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml && \
-                kubectl config use-context default && \     
+                kubectl config use-context default && \
                 kubectl get pods -A -v6 && \
-                az login --service-principal -u ${{ secrets.AZURE_SP_CLIENT_ID }} -p \"\"${{ secrets.AZURE_SP_CLIENT_ID }}\"\" --tenant $tenantId && \
+                az login --service-principal -u ${{ secrets.AZURE_SP_CLIENT_ID }} -p \"\"${{ secrets.AZURE_SP_CLIENT_SECRET }}\"\" --tenant $tenantId && \
                 az extension add --name connectedk8s && \
                 az extension add --name azure-iot-ops && \
                 az connectedk8s connect --debug -n $clusterName -l $location -g $resourceGroup --subscription $subscriptionId && \
