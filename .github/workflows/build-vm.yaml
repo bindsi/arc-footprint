@@ -208,10 +208,10 @@ jobs:
                 curl -sfL https://get.k3s.io | sh - && \
                 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml && \
                 kubectl config use-context default && \     
-                kubectl get pods -A -v6 \
+                kubectl get pods -A -v6 && \
                 az login --service-principal -u ${{ secrets.AZURE_SP_CLIENT_ID }} -p \"\"${{ secrets.AZURE_SP_CLIENT_ID }}\"\" --tenant $tenantId && \
                 az extension add --name connectedk8s && \
-                az extension add --name azure-iot-ops \
+                az extension add --name azure-iot-ops && \
                 az connectedk8s connect --debug -n $clusterName -l $location -g $resourceGroup --subscription $subscriptionId && \
                 az connectedk8s enable-features --debug -n $clusterName -g $resourceGroup --custom-locations-oid \"\"${{ secrets.CUSTOM_LOCATIONS_OBJECT_ID }}\"\" --features cluster-connect custom-locations && \
                 az iot ops init --debug --cluster $clusterName -g $resourceGroup --kv-id \"\"$kvId\"\" --sp-app-id \"\"${{ secrets.AZURE_SP_CLIENT_ID }}\"\" --sp-object-id \"\"${{ secrets.AZURE_SP_OBJECT_ID }}\"\" --sp-secret \"\"${{ secrets.AZURE_SP_CLIENT_SECRET }}\"\" --no-progress \
