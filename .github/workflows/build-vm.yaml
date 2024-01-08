@@ -199,7 +199,7 @@ jobs:
                 Remove-Item -LiteralPath C:\\Windows\\System32\\config\\systemprofile\\.azure\\AzureArcCharts -Recurse -Force; \
                 az connectedk8s enable-features --debug -n $clusterName -g $resourceGroup --kube-config C:\\Scripts\\config --custom-locations-oid \"\"${{ secrets.CUSTOM_LOCATIONS_OBJECT_ID }}\"\" --features cluster-connect custom-locations; \
                 \$env:KUBECONFIG='C:\\Scripts\\config'; \
-                \$decodedSecret = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(\"\"$encodedBase64Secret\"\")); \
+                \$decodedSecret = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('$encodedBase64Secret')); \
                 az iot ops init --debug --cluster $clusterName -g $resourceGroup --kv-id \"\"$kvId\"\" --sp-app-id \"\"${{ secrets.AZURE_SP_CLIENT_ID }}\"\" --sp-object-id \"\"${{ secrets.AZURE_SP_OBJECT_ID }}\"\" --sp-secret \"\"\$decodedSecret\"\" --no-progress; \
             \"}"
         else
