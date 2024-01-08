@@ -91,6 +91,7 @@ jobs:
     outputs:
       clusterName: ${{ env.clusterName }}
       resourceGroup: ${{ env.resourceGroup }}
+      vmName: ${{ env.vmName }}
     steps:
     - uses: actions/checkout@v4
       with:
@@ -230,5 +231,5 @@ jobs:
     with:
       clusterName: ${{ needs.Build-VM.outputs.clusterName }}
       resourceGroupName: ${{ needs.Build-VM.outputs.resourceGroup }}
-      vmName: $vmName
+      vmName: ${{ needs.Build-VM.outputs.vmName }}
     secrets: inherit
