@@ -34,7 +34,7 @@ resource azureImageBuilderTemplate 'Microsoft.VirtualMachineImages/imageTemplate
         type: 'PowerShell'
         name: 'InstallWindosPerformanceToolkit'
         inline: [
-          'Invoke-WebRequest -Uri https://go.microsoft.com/fwlink/?linkid=2165884 -OutFile \'C:\\Program Files\\adksetup.exe\''
+          'Invoke-WebRequest -Uri https://go.microsoft.com/fwlink/?linkid=2243390 -OutFile \'C:\\Program Files\\adksetup.exe\''
           'cd \'C:\\Program Files\'; .\\adksetup.exe /quiet /installpath "C:\\Program Files\\ADK" /features OptionId.WindowsPerformanceToolkit'
           'do {'
           '    if (-not (Test-Path \'C:\\Program Files (x86)\\ADK\')) {'
